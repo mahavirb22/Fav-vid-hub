@@ -48,13 +48,6 @@ A modern, full-stack video sharing platform where users can discover, add, and w
    npm install
    ```
 
-   Create a `.env` file in the backend directory:
-   ```env
-   PORT=5000
-   MONGODB_URI=mongodb://localhost:27017/favvidhub
-   # Or your MongoDB Atlas connection string
-   ```
-
 3. **Frontend Setup**
    ```bash
    cd ../frontend
