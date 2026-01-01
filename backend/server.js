@@ -5,24 +5,48 @@ import connectDB from "./config/db.js"
 import videoRoutes from "./routes/videoRoutes.js"
 import categoryRoutes from "./routes/categoryRoutes.js"
 
+/* Load environment variables */
 dotenv.config()
-connectDB()
 
+/* Initialize express app */
 const app = express()
 
-app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
-  credentials: true
-}))
-app.use(express.json())
+/* Connect MongoDB (serverless-safe) */
+connectDB()
+
+/* Middleware */
+app.use(
+  cors({
+    origin: process.env.FRONTEND_URL || "*",
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"]
+  })
+)
+
+app.use(express.json({ limit: "10mb" }))
+app.use(express.urlencoded({ extended: true }))
+
+/* Routes */
 app.use("/api/videos", videoRoutes)
 app.use("/api/categories", categoryRoutes)
 
+/* Health check */
 app.get("/", (req, res) => {
-  res.send("Backend is running successfully 🚀")
+  res.status(200).json({
+    success: true,
+    message: "Backend is running successfully"
+  })
 })
 
-const PORT = process.env.PORT || 5000
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`)
+/* Global error handler */
+app.use((err, req, res, next) => {
+  console.error(err.stack)
+  res.status(500).json({
+    success: false,
+    message: "Internal Server Error"
+  })
 })
+
+/* ❗ IMPORTANT for Vercel */
+export default app
