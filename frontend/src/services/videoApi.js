@@ -1,6 +1,6 @@
 import axios from "axios"
 
-const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:5000"
+const API_BASE = "/api"
 
 // Fetch random videos for Home page
 export const fetchRandomVideos = async (limit = 8, category = "All") => {
@@ -9,7 +9,7 @@ export const fetchRandomVideos = async (limit = 8, category = "All") => {
       ? `?limit=${limit}&category=${category}`
       : `?limit=${limit}`
 
-  const res = await axios.get(`${API_BASE}/api/videos/random${query}`)
+  const res = await axios.get(`${API_BASE}/videos/random${query}`)
   return res.data
 }
 
@@ -20,20 +20,20 @@ export const fetchRelatedVideos = async ({
   limit = 6,
 }) => {
   const res = await axios.get(
-    `${API_BASE}/api/videos/related?category=${category}&excludeId=${excludeId}&limit=${limit}`
+    `${API_BASE}/videos/related?category=${category}&excludeId=${excludeId}&limit=${limit}`
   )
   return res.data
 }
 
 // ✅ Fetch single video by YouTube ID (FIXES "Video not found")
 export const fetchVideoByYoutubeId = async (youtubeId) => {
-  const res = await axios.get(`${API_BASE}/api/videos/${youtubeId}`)
+  const res = await axios.get(`${API_BASE}/videos/${youtubeId}`)
   return res.data
 }
 
 // Add new video
 export const addVideo = async ({ youtubeLink, category }) => {
-  const res = await axios.post(`${API_BASE}/api/videos`, {
+  const res = await axios.post(`${API_BASE}/videos`, {
     youtubeLink,
     category,
   })
@@ -42,16 +42,16 @@ export const addVideo = async ({ youtubeLink, category }) => {
 
 // Category API functions
 export const fetchCategories = async () => {
-  const res = await axios.get(`${API_BASE}/api/categories`)
+  const res = await axios.get(`${API_BASE}/categories`)
   return res.data
 }
 
 export const addCategory = async (name) => {
-  const res = await axios.post(`${API_BASE}/api/categories`, { name })
+  const res = await axios.post(`${API_BASE}/categories`, { name })
   return res.data
 }
 
 export const deleteCategory = async (id) => {
-  const res = await axios.delete(`${API_BASE}/api/categories/${id}`)
+  const res = await axios.delete(`${API_BASE}/categories/${id}`)
   return res.data
 }

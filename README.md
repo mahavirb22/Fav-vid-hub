@@ -1,0 +1,144 @@
+# FavVid Hub
+
+A modern, full-stack video sharing platform where users can discover, add, and watch their favorite YouTube videos organized by categories.
+
+## 🚀 Features
+
+- **Dynamic Categories**: Create and manage video categories dynamically
+- **YouTube Integration**: Automatically fetch video titles and thumbnails from YouTube
+- **Responsive Design**: Beautiful, mobile-friendly interface with animations
+- **Real-time Search**: Filter videos by category
+- **Video Management**: Add new videos with category selection or creation
+- **Related Videos**: Discover similar content based on categories
+
+## 🛠️ Tech Stack
+
+### Frontend
+- **React** - UI library
+- **Vite** - Build tool and dev server
+- **Tailwind CSS** - Utility-first CSS framework
+- **Framer Motion** - Animation library
+- **React Router** - Client-side routing
+- **Axios** - HTTP client
+
+### Backend
+- **Node.js** - Runtime environment
+- **Express.js** - Web framework
+- **MongoDB** - NoSQL database
+- **Mongoose** - ODM for MongoDB
+- **Node-fetch** - HTTP requests
+
+## 📋 Prerequisites
+
+- Node.js (v16 or higher)
+- MongoDB (local or cloud instance)
+- npm or yarn
+
+## 🔧 Installation
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/yourusername/favvid-hub.git
+   cd favvid-hub
+   ```
+
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
+
+3. **Environment Setup**
+   Create a `.env` file in the root directory:
+   ```env
+   MONGODB_URI=mongodb://localhost:27017/favvidhub
+   ```
+
+## 🚀 Running the Application
+
+### Development Mode
+
+```bash
+npm run dev
+```
+- Frontend runs on http://localhost:5173
+- API available at /api/*
+
+### Production Build
+
+```bash
+npm run build
+```
+
+## 📡 API Endpoints
+
+### Videos
+- `GET /api/videos` - Get all videos
+- `GET /api/videos/random` - Get random videos (with optional category filter)
+- `GET /api/videos/related` - Get related videos by category
+- `GET /api/videos/:youtubeId` - Get single video by YouTube ID
+- `POST /api/videos` - Add new video
+
+### Categories
+- `GET /api/categories` - Get all categories
+- `POST /api/categories` - Add new category
+- `DELETE /api/categories/:id` - Delete category
+
+## 🎨 Usage
+
+1. **Home Page**: Browse random videos or filter by category
+2. **Add Video**: Paste a YouTube URL and select or create a category
+3. **Watch Page**: View video details and related content
+4. **Categories**: Manage video categories dynamically
+
+## 🚀 Deployment
+
+### Full-Stack Deployment on Vercel
+
+1. **Connect Repository**
+   - Push your code to GitHub
+   - Connect the repository to Vercel
+
+2. **Environment Variables**
+   ```
+   MONGODB_URI=your_mongodb_connection_string
+   ```
+
+3. **Deploy**
+   - Vercel will automatically detect the configuration
+   - Frontend builds from `frontend/` directory
+   - API routes served from `api/` directory
+   - Database connects via MongoDB URI
+
+### Separate Deployments
+
+If you prefer separate deployments:
+
+#### Frontend (Vercel)
+- Deploy `frontend/` directory
+- Set `VITE_API_BASE` to your backend URL
+
+#### Backend (Railway/Render/Heroku)
+- Deploy `backend/` directory
+- Set `MONGODB_URI` and `FRONTEND_URL`
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## 📝 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- YouTube for video content
+- React and Vite communities
+- Open source contributors
+
+## 📞 Support
+
+If you have any questions or issues, please open an issue on GitHub or contact the maintainers.
