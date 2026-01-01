@@ -1,6 +1,8 @@
 import axios from "axios"
 
-const API_BASE = "/api"
+const API_BASE = import.meta.env.PROD
+  ? "/api"  // Vercel API routes
+  : "http://localhost:5000/api"  // Local Express server
 
 // Fetch random videos for Home page
 export const fetchRandomVideos = async (limit = 8, category = "All") => {
