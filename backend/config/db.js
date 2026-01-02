@@ -1,22 +1,28 @@
 import mongoose from "mongoose"
 
-let isConnected = false
+const MONGO_URI = process.env.MONGO_URI
+
+if (!MONGO_URI) {
+  throw new Error("MONGO_URI is not defined in environment variables")
+}
 
 const connectDB = async () => {
-  if (isConnected) {
+  // 0 = disconnected, 1 = connected, 2 = connecting, 3 = disconnecting
+  if (mongoose.connection.readyState === 1) {
     return
   }
 
   try {
-    await mongoose.connect(process.env.MONGO_URI, {
+    mongoose.set("strictQuery", true)
+
+    await mongoose.connect(MONGO_URI, {
       bufferCommands: false
     })
 
-    isConnected = true
     console.log("MongoDB connected successfully")
   } catch (error) {
-    console.error("MongoDB connection failed:", error.message)
-    throw error   // ❗ Do NOT use process.exit() on Vercel
+    console.error("MongoDB connection failed:", error)
+    throw error
   }
 }
 
