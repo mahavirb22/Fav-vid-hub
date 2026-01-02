@@ -5,6 +5,9 @@ import {
   getThumbnailFromId,
 } from "../utils/youtube.js"
 
+const escapeRegex = (str) =>
+  str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+
 /**
  * @desc Add new video
  */
