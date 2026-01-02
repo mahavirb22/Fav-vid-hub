@@ -1,7 +1,15 @@
 import axios from "axios"
 
+const baseURL = import.meta.env.VITE_API_BASE_URL
+
+if (!baseURL) {
+  throw new Error(
+    'VITE_API_BASE_URL is not set. Set it to your backend origin including the /api prefix, e.g. "https://your-backend.vercel.app/api"'
+  )
+}
+
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL,
+  baseURL,
 })
 
 // Fetch random videos for Home page
@@ -11,9 +19,9 @@ export const fetchRandomVideos = async (limit = 8, category = "All") => {
       ? `?limit=${limit}&category=${category}`
       : `?limit=${limit}`
 
-  const res = await api.get(`/api/videos/random${query}`)
+  const res = await api.get(`/videos/random${query}`)
   return res.data
-}
+} 
 
 // Fetch related videos for Watch page
 export const fetchRelatedVideos = async ({
@@ -22,41 +30,41 @@ export const fetchRelatedVideos = async ({
   limit = 6,
 }) => {
   const res = await api.get(
-    `/api/videos/related?category=${encodeURIComponent(
+    `/videos/related?category=${encodeURIComponent(
       category
     )}&excludeId=${encodeURIComponent(excludeId)}&limit=${limit}`
   )
   return res.data
-}
+} 
 
 // Fetch single video by YouTube ID
 export const fetchVideoByYoutubeId = async (youtubeId) => {
-  const res = await api.get(`/api/videos/${encodeURIComponent(youtubeId)}`)
+  const res = await api.get(`/videos/${encodeURIComponent(youtubeId)}`)
   return res.data
-}
+} 
 
 // Add new video
 export const addVideo = async ({ youtubeLink, category }) => {
-  const res = await api.post(`/api/videos`, {
+  const res = await api.post(`/videos`, {
     youtubeLink,
     category,
   })
   return res.data
-}
+} 
 
 // Category API functions
 export const fetchCategories = async () => {
-  const res = await api.get(`/api/categories`)
+  const res = await api.get(`/categories`)
   return res.data
-}
+} 
 
 export const addCategory = async (name) => {
-  const res = await api.post(`/api/categories`, { name })
+  const res = await api.post(`/categories`, { name })
   return res.data
-}
+} 
 
 export const deleteCategory = async (id) => {
-  const res = await api.delete(`/api/categories/${encodeURIComponent(id)}`)
+  const res = await api.delete(`/categories/${encodeURIComponent(id)}`)
   return res.data
 }
 
