@@ -3,9 +3,21 @@ import axios from "axios"
 const baseURL = import.meta.env.VITE_API_BASE_URL
 
 if (!baseURL) {
-  throw new Error(
-    'VITE_API_BASE_URL is not set. Set it to your backend origin including the /api prefix, e.g. "https://your-backend.vercel.app/api"'
-  )
+  if (import.meta.env.PROD) {
+    // Fail loudly in production so misconfiguration doesn't cause requests to hit the frontend domain
+    throw new Error(
+      'VITE_API_BASE_URL is not set. Set it to your backend origin including the /api prefix, e.g. "https://your-backend.vercel.app/api"'
+    )
+  } else {
+    // In development, warn (instead of throwing) so dev workflow isn't blocked; developers should set a local env var
+    // Example local value: "http://localhost:5000/api"
+    // Note: no runtime fallback is used; this is only a developer convenience message
+    // to remind the developer to set the build-time env var.
+    // eslint-disable-next-line no-console
+    console.warn(
+      'VITE_API_BASE_URL is not set. Add it to your local env (e.g., .env.local) pointing at your backend (example: "http://localhost:5000/api").'
+    )
+  }
 }
 
 const api = axios.create({
