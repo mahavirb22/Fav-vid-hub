@@ -124,33 +124,37 @@ export const getRandomVideos = async (req, res) => {
  */
 export const getRelatedVideos = async (req, res) => {
   try {
-    const { category: categoryName, excludeId } = req.query
-    const limit = Math.max(Number(req.query.limit) || 6, 1)
+    const { category, excludeId } = req.query
+    const limit = Number(req.query.limit) || 6
 
-    if (!categoryName) return res.json([])
-
-    const safeName = escapeRegex(categoryName)
-
-    const category = await Category.findOne({
-      name: { $regex: new RegExp(`^${safeName}$`, "i") },
-    })
-
-    if (!category) return res.json([])
-
-    const query = {
-      category: category._id,
-      ...(excludeId ? { youtubeId: { $ne: excludeId } } : {}),
+    // Agar category hi nahi aayi → empty list
+    if (!category) {
+      return res.json([])
     }
 
-    const videos = await Video.find(query)
-      .populate("category")
-      .sort({ createdAt: -1 })
-      .limit(limit)
+    // Category find karo (safe)
+    const foundCategory = await Category.findOne({
+      name: { $regex: new RegExp(`^${category}$`, "i") }
+    })
 
-    res.json(videos)
-  } catch (err) {
-    console.error(err)
-    res.status(500).json({ message: "Failed to fetch related videos" })
+    // Agar category DB me nahi mili → empty list
+    if (!foundCategory) {
+      return res.json([])
+    }
+
+    const videos = await Video.find({
+      category: foundCategory._id,
+      ...(excludeId ? { youtubeId: { $ne: excludeId } } : {})
+    })
+      .limit(limit)
+      .populate("category")
+
+    return res.json(videos)
+  } catch (error) {
+    console.error("Related videos error:", error)
+    return res.status(500).json({
+      message: "Failed to fetch related videos"
+    })
   }
 }
 
