@@ -1,30 +1,18 @@
 import mongoose from "mongoose"
 
-const MONGO_URI = process.env.MONGO_URI
-
-// Delay throwing until we actually try to connect so imports don't crash in serverless environments
-// and allow the app to start while surfacing clear errors at connection time.
-
 const connectDB = async () => {
-  // 0 = disconnected, 1 = connected, 2 = connecting, 3 = disconnecting
-  if (mongoose.connection.readyState === 1) {
-    return
-  }
-
-  if (!MONGO_URI) {
-    throw new Error("MONGO_URI is not defined in environment variables")
-  }
-
   try {
-    mongoose.set("strictQuery", true)
+    console.log("Attempting MongoDB connection...")
+    console.log("MONGO_URI exists:", !!process.env.MONGO_URI)
 
-    await mongoose.connect(MONGO_URI, {
-      bufferCommands: false
-    })
+    const conn = await mongoose.connect(process.env.MONGO_URI)
 
-    console.log("MongoDB connected successfully")
+    console.log("MongoDB CONNECTED")
+    console.log("DB name:", conn.connection.name)
+    console.log("Host:", conn.connection.host)
   } catch (error) {
-    console.error("MongoDB connection failed:", error)
+    console.error("MongoDB CONNECTION ERROR ❌")
+    console.error(error)
     throw error
   }
 }
