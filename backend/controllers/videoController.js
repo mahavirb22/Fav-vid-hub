@@ -5,15 +5,23 @@ import {
   getThumbnailFromId,
 } from "../utils/youtube.js"
 
-/**
- * @desc Add new video
- */
+/* ================================
+   Utility: escape regex safely
+================================ */
+const escapeRegex = (text = "") =>
+  text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+
+/* ================================
+   Add new video
+================================ */
 export const addVideo = async (req, res) => {
   try {
     const { youtubeLink, category: categoryName } = req.body
 
     if (!youtubeLink || !categoryName) {
-      return res.status(400).json({ message: "YouTube link and category are required" })
+      return res
+        .status(400)
+        .json({ message: "YouTube link and category are required" })
     }
 
     const youtubeId = extractYouTubeId(youtubeLink)
@@ -33,21 +41,25 @@ export const addVideo = async (req, res) => {
     })
 
     if (!category) {
-      category = await Category.create({ name: categoryName.trim() })
+      category = await Category.create({
+        name: categoryName.trim(),
+      })
     }
 
-    // Use global fetch (Vercel Node 18+)
+    /* Default title */
     let title = "Untitled Video"
+
+    /* Optional YouTube title fetch (never fail insert) */
     try {
       const r = await fetch(
         `https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${youtubeId}&format=json`
       )
       if (r.ok) {
         const data = await r.json()
-        title = data.title
+        if (data?.title) title = data.title
       }
     } catch {
-      console.warn("YouTube title fetch failed")
+      console.warn("YouTube title fetch skipped")
     }
 
     const video = await Video.create({
@@ -57,30 +69,32 @@ export const addVideo = async (req, res) => {
       thumbnail: getThumbnailFromId(youtubeId),
     })
 
-    res.status(201).json(video)
+    return res.status(201).json(video)
   } catch (err) {
-    console.error(err)
-    res.status(500).json({ message: "Failed to add video" })
+    console.error("Add video error:", err)
+    return res.status(500).json({ message: "Failed to add video" })
   }
 }
 
-/**
- * @desc Get all videos
- */
+/* ================================
+   Get all videos
+================================ */
 export const getAllVideos = async (req, res) => {
   try {
     const videos = await Video.find()
       .populate("category")
       .sort({ createdAt: -1 })
+
     res.json(videos)
   } catch (err) {
+    console.error(err)
     res.status(500).json({ message: "Failed to fetch videos" })
   }
 }
 
-/**
- * @desc Get random videos
- */
+/* ================================
+   Get random videos (Home)
+================================ */
 export const getRandomVideos = async (req, res) => {
   try {
     const limit = Math.max(Number(req.query.limit) || 8, 1)
@@ -119,32 +133,31 @@ export const getRandomVideos = async (req, res) => {
   }
 }
 
-/**
- * @desc Get related videos
- */
+/* ================================
+   Get related videos (Watch page)
+================================ */
 export const getRelatedVideos = async (req, res) => {
   try {
     const { category, excludeId } = req.query
     const limit = Number(req.query.limit) || 6
 
-    // Agar category hi nahi aayi → empty list
     if (!category) {
       return res.json([])
     }
 
-    // Category find karo (safe)
+    const safeName = escapeRegex(category)
+
     const foundCategory = await Category.findOne({
-      name: { $regex: new RegExp(`^${category}$`, "i") }
+      name: { $regex: new RegExp(`^${safeName}$`, "i") },
     })
 
-    // Agar category DB me nahi mili → empty list
     if (!foundCategory) {
       return res.json([])
     }
 
     const videos = await Video.find({
       category: foundCategory._id,
-      ...(excludeId ? { youtubeId: { $ne: excludeId } } : {})
+      ...(excludeId ? { youtubeId: { $ne: excludeId } } : {}),
     })
       .limit(limit)
       .populate("category")
@@ -152,19 +165,20 @@ export const getRelatedVideos = async (req, res) => {
     return res.json(videos)
   } catch (error) {
     console.error("Related videos error:", error)
-    return res.status(500).json({
-      message: "Failed to fetch related videos"
-    })
+    return res
+      .status(500)
+      .json({ message: "Failed to fetch related videos" })
   }
 }
 
-/**
- * @desc Get video by YouTube ID
- */
+/* ================================
+   Get video by YouTube ID
+================================ */
 export const getVideoByYoutubeId = async (req, res) => {
   try {
-    const video = await Video.findOne({ youtubeId: req.params.youtubeId })
-      .populate("category")
+    const video = await Video.findOne({
+      youtubeId: req.params.youtubeId,
+    }).populate("category")
 
     if (!video) {
       return res.status(404).json({ message: "Video not found" })
@@ -172,6 +186,7 @@ export const getVideoByYoutubeId = async (req, res) => {
 
     res.json(video)
   } catch (err) {
+    console.error(err)
     res.status(500).json({ message: "Failed to fetch video" })
   }
 }
